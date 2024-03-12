@@ -6,7 +6,7 @@ from coin import Coin
 # set up pygame modules
 pygame.init()
 pygame.font.init()
-my_font = pygame.font.SysFont('Arial', 15)
+my_font = pygame.font.SysFont("Arial", 15)
 pygame.display.set_caption("Coin Collector!")
 
 
@@ -40,11 +40,9 @@ run = True
 # -------- Main Program Loop -----------
 while run:
 
-
     keys = pygame.key.get_pressed()  # checking pressed keys
     if keys[pygame.K_d]:
         f.move_direction("right")
-
 
     # collision
     if f.rect.colliderect(c.rect):
@@ -54,12 +52,10 @@ while run:
         message = "Collision not detected"
         display_message = my_font.render(message, True, (255, 255, 255))
 
-
     # --- Main event loop
     for event in pygame.event.get():  # User did something
         if event.type == pygame.QUIT:  # If user clicked close
             run = False
-
 
     screen.fill((r, g, b))
     screen.blit(display_name, (0, 0))
