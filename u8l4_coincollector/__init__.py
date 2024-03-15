@@ -48,6 +48,8 @@ p1_score, p2_score = 0, 0
 p1_flip, p2_flip = False, False
 title_screen = True
 two_player = False
+bc_timer = datetime.now()
+bc_ttl = randint(2, 5)  # time to live for bonus coin
 while run:
     while title_screen:
         for event in pygame.event.get():
@@ -103,11 +105,20 @@ while run:
             if p2_flip:
                 f2.image = pygame.transform.flip(f2.image, True, False)
                 p2_flip = False
-    
-    if datetime.now().microsecond % 1000 == 0 and randint(0, 100) == 0:
-        bc.new_location(SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    if (datetime.now() - bc_timer).total_seconds() * 1000 > (bc_ttl * 1000):
+        bc.set_location(SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1)
+        bc_timer = datetime.now()
+    else:
+        if datetime.now().microsecond % 1000 == 0 and randint(0, 10) == 0:
+            bc.new_location(SCREEN_WIDTH, SCREEN_HEIGHT)
+            bc_timer = datetime.now()
 
     # collision
+    if f1.rect.colliderect(bc.rect):
+        bc.set_location(SCREEN_WIDTH, SCREEN_HEIGHT)
+        p1_score += 50
+
     if f1.rect.colliderect(c.rect):
         c.new_location(SCREEN_WIDTH, SCREEN_HEIGHT)
         p1_score += 10
@@ -116,6 +127,10 @@ while run:
         if f2.rect.colliderect(c.rect):
             c.new_location(SCREEN_WIDTH, SCREEN_HEIGHT)
             p2_score += 10
+
+        if f2.rect.colliderect(bc.rect):
+            bc.set_location(SCREEN_WIDTH, SCREEN_HEIGHT)
+            p2_score += 50
 
         display_p2_score = my_font.render(
             f"Player 2: {p2_score}", True, (255, 255, 255)
