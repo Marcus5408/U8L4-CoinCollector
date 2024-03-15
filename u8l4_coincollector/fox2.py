@@ -1,14 +1,14 @@
 ﻿import pygame
 
 
-class Fox:
+class Fox2:
 
     def __init__(self, x: int, y: int, bounds: tuple) -> None:
         self.x = x
         self.y = y
         self.bounds = bounds
         self.image = pygame.image.load(
-            f"{__file__.replace('fox.py', '')}orange-fox-sprite.png"
+            f"{__file__.replace('fox2.py', '')}brown-fox-sprite.png"
         )
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
