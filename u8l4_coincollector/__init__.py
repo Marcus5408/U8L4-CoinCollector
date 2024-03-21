@@ -1,4 +1,4 @@
-import pygame
+﻿import pygame
 from datetime import datetime
 from random import randint
 from fox import Fox
@@ -220,7 +220,7 @@ while run:
         display_winner = my_font.render(winner, True, (255, 255, 255))
         screen.blit(display_winner, (text_x, text_y + 25))
         display_click_to_exit = my_font.render("Click to exit", True, (255, 255, 255))
-        screen.blit(display_click_to_exit, (text_x, text_y + 50))
+        screen.blit(display_click_to_exit, (text_x, text_y + 40))
         pygame.display.update()
 
 with open(f"{__file__.replace('__init__.py', '')}high_score.txt", "w") as file:
