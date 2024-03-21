@@ -180,7 +180,6 @@ while run:
         True,
         (255, 255, 255),
     )
-    screen.blit(time_remaining_display, (0, 30))
     screen.blit(c.image, c.rect)
     screen.blit(bc.image, bc.rect)
     screen.blit(f1.image, f1.rect)
@@ -188,11 +187,12 @@ while run:
     if two_player:
         screen.blit(f2.image, f2.rect)
         screen.blit(display_p2_score, (0, 30))
+    screen.blit(time_remaining_display, (0, 30 if not two_player else 45))
 
     bomb.set_location(bomb.x, bomb.y + 5)
     pygame.display.update()
 
-    if (datetime.now() - game_start).total_seconds() > 2:
+    if (datetime.now() - game_start).total_seconds() > 60:
         end_screen = True
 
     while end_screen:
@@ -200,6 +200,9 @@ while run:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 run = False
                 end_screen = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                end_screen = False
+                title_screen = True
 
         screen.fill((r, g, b))
         end_message = "Game Over!"
@@ -219,7 +222,7 @@ while run:
             winner = f"Your score: {p1_score}"
         display_winner = my_font.render(winner, True, (255, 255, 255))
         screen.blit(display_winner, (text_x, text_y + 25))
-        display_click_to_exit = my_font.render("Click to exit", True, (255, 255, 255))
+        display_click_to_exit = my_font.render("Click to exit or [R]estart", True, (255, 255, 255))
         screen.blit(display_click_to_exit, (text_x, text_y + 40))
         pygame.display.update()
 
