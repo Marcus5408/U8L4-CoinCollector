@@ -1,10 +1,11 @@
-﻿import pygame
+﻿from matplotlib.pylab import rand
+import pygame
 from datetime import datetime
 from random import randint
 from fox import Fox
-from fox2 import Fox2
 from coin import Coin
 from bonus_coin import BonusCoin
+from bomb import Bomb
 
 
 # set up pygame modules
@@ -31,12 +32,13 @@ b = 162
 display_name = my_font.render(name, True, (255, 255, 255))
 
 
-f1 = Fox(40, 60, (SCREEN_WIDTH, SCREEN_HEIGHT))
+f1 = Fox(40, 60, (SCREEN_WIDTH, SCREEN_HEIGHT), "orange-fox-sprite.png")
 max_sprite_bounds = (SCREEN_WIDTH - f1.image_size[0], SCREEN_HEIGHT - f1.image_size[1])
-f1 = Fox(40, 60, max_sprite_bounds)
-f2 = Fox2(40, 60, max_sprite_bounds)
+f1 = Fox(40, 60, max_sprite_bounds, "orange-fox-sprite.png")
+f2 = Fox(40, 60, max_sprite_bounds, "brown-fox-sprite.png")
 c = Coin(200, 85)
 bc = BonusCoin(200, 85)
+bomb = Bomb(0, -40)
 
 
 # The loop will carry on until the user exits the game (e.g. clicks the close button).
@@ -50,7 +52,9 @@ title_screen = True
 two_player = False
 bc_timer = datetime.now()
 bc_ttl = randint(2, 5)  # time to live for bonus coin
+clock = pygame.time.Clock()
 while run:
+    clock.tick(60)
     while title_screen:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -110,9 +114,12 @@ while run:
         bc.set_location(SCREEN_WIDTH + 1, SCREEN_HEIGHT + 1)
         bc_timer = datetime.now()
     else:
-        if datetime.now().microsecond % 1000 == 0 and randint(0, 10) == 0:
-            bc.new_location(SCREEN_WIDTH, SCREEN_HEIGHT)
-            bc_timer = datetime.now()
+        if datetime.now().microsecond % 1000 == 0:
+            if randint(0, 10) == 0:
+                bc.new_location(SCREEN_WIDTH, SCREEN_HEIGHT)
+                bc_timer = datetime.now()
+            else:
+                bomb.new_location(SCREEN_WIDTH)
 
     # collision
     if f1.rect.colliderect(bc.rect):
@@ -123,6 +130,10 @@ while run:
         c.new_location(SCREEN_WIDTH, SCREEN_HEIGHT)
         p1_score += 10
 
+    if f1.rect.colliderect(bomb.rect):
+        bomb.new_location(SCREEN_WIDTH)
+        p1_score -= 20
+
     if two_player:
         if f2.rect.colliderect(c.rect):
             c.new_location(SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -131,6 +142,10 @@ while run:
         if f2.rect.colliderect(bc.rect):
             bc.set_location(SCREEN_WIDTH, SCREEN_HEIGHT)
             p2_score += 50
+
+        if f2.rect.colliderect(bomb.rect):
+            bomb.new_location(SCREEN_WIDTH)
+            p2_score -= 20
 
         display_p2_score = my_font.render(
             f"Player 2: {p2_score}", True, (255, 255, 255)
@@ -153,9 +168,12 @@ while run:
     screen.blit(c.image, c.rect)
     screen.blit(bc.image, bc.rect)
     screen.blit(f1.image, f1.rect)
+    screen.blit(bomb.image, bomb.rect)
     if two_player:
         screen.blit(f2.image, f2.rect)
         screen.blit(display_p2_score, (0, 30))
+    
+    bomb.set_location(bomb.x, bomb.y + 5)
     pygame.display.update()
 
 
