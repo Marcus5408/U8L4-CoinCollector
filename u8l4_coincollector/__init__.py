@@ -1,5 +1,4 @@
-﻿from matplotlib.pylab import rand
-import pygame
+﻿import pygame
 from datetime import datetime
 from random import randint
 from fox import Fox
@@ -46,9 +45,19 @@ run = True
 
 
 # -------- Main Program Loop -----------
+try:
+    with open(f"{__file__.replace('__init__.py', '')}high_score.txt", "r") as file:
+        file_contents = file.read()
+        high_score = int(file_contents) if file_contents else 0
+except FileNotFoundError:
+    # create file if it doesn't exist
+    with open(f"{__file__.replace('__init__.py', '')}high_score.txt", "w") as file:
+        file.write("0")
+        high_score = 0
+
 p1_score, p2_score = 0, 0
 p1_flip, p2_flip = False, False
-title_screen = True
+title_screen, end_screen = True, False
 two_player = False
 bc_timer = datetime.now()
 bc_ttl = randint(2, 5)  # time to live for bonus coin
@@ -77,6 +86,7 @@ while run:
         screen.blit(display_title, (text_x, text_y))
         screen.blit(display_subtitle, (text_x, text_y + display_title.get_height()))
         pygame.display.update()
+        game_start = datetime.now()
 
     keys = pygame.key.get_pressed()  # checking pressed keys
     if keys[pygame.K_w]:
@@ -165,6 +175,12 @@ while run:
     screen.fill((r, g, b))
     screen.blit(display_name, (0, 0))
     screen.blit(display_p1_score, (0, 15))
+    time_remaining_display = my_font.render(
+        f"Time remaining: {60 - (datetime.now() - game_start).seconds} seconds",
+        True,
+        (255, 255, 255),
+    )
+    screen.blit(time_remaining_display, (0, 30))
     screen.blit(c.image, c.rect)
     screen.blit(bc.image, bc.rect)
     screen.blit(f1.image, f1.rect)
@@ -172,10 +188,48 @@ while run:
     if two_player:
         screen.blit(f2.image, f2.rect)
         screen.blit(display_p2_score, (0, 30))
-    
+
     bomb.set_location(bomb.x, bomb.y + 5)
     pygame.display.update()
 
+    if (datetime.now() - game_start).total_seconds() > 2:
+        end_screen = True
 
+    if end_screen:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                run = False
+                end_screen = False
+
+        screen.fill((r, g, b))
+        end_message = "Game Over!"
+        end_font = pygame.font.SysFont("Arial", 50)
+        display_end = end_font.render(end_message, True, (255, 255, 255))
+        text_x = (SCREEN_WIDTH - display_end.get_width()) // 2
+        text_y = (SCREEN_HEIGHT - display_end.get_height()) // 2
+        screen.blit(display_end, (text_x, text_y - 25))
+        if two_player:
+            if p1_score == p2_score:
+                winner = "It's a tie!"
+            elif p1_score > p2_score:
+                winner = f"Player 1 wins, with {p1_score} points!"
+            else:
+                winner = f"Player 2 wins, with {p2_score} points!"
+        else:
+            winner = f"Your score: {p1_score}"
+        display_winner = my_font.render(winner, True, (255, 255, 255))
+        screen.blit(display_winner, (text_x, text_y + 25))
+        display_click_to_exit = my_font.render("Click to exit", True, (255, 255, 255))
+        screen.blit(display_click_to_exit, (text_x, text_y + 50))
+        pygame.display.update()
+
+with open(f"{__file__.replace('__init__.py', '')}high_score.txt", "w") as file:
+    file.truncate(0)
+    if p1_score > high_score:
+        file.write(str(p1_score))
+    elif two_player and p2_score > high_score:
+        file.write(str(p2_score))
+    else:
+        file.write(str(high_score))
 # Once we have exited the main program loop we can stop the game engine:
 pygame.quit()
