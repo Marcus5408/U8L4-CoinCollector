@@ -1,4 +1,4 @@
-﻿import pygame
+import pygame
 from datetime import datetime
 from random import randint
 from fox import Fox
@@ -195,7 +195,7 @@ while run:
     if (datetime.now() - game_start).total_seconds() > 2:
         end_screen = True
 
-    if end_screen:
+    while end_screen:
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 run = False
